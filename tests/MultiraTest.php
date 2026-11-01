@@ -10,7 +10,7 @@ class MultiraTest extends TestCase
 {
     public function test_it_detects_locale_from_the_first_url_segment(): void
     {
-        $this->setRequestUrl('http://localhost/en/cart');
+        $this->setRequestUrl('http://localhost/en/about');
 
         $prefix = Multira::setLocale();
 
@@ -33,11 +33,11 @@ class MultiraTest extends TestCase
 
     public function test_it_builds_a_localized_url(): void
     {
-        $this->setRequestUrl('http://localhost/ar/cart?page=2');
+        $this->setRequestUrl('http://localhost/ar/about?page=2');
         Multira::setLocale();
 
         $this->assertSame(
-            'http://localhost/en/cart?page=2',
+            'http://localhost/en/about?page=2',
             Multira::getLocalizedURL('en')
         );
     }
@@ -45,15 +45,15 @@ class MultiraTest extends TestCase
     public function test_it_hides_the_default_locale_when_configured(): void
     {
         config()->set('multira.hideDefaultLocaleInURL', true);
-        $this->setRequestUrl('http://localhost/cart');
+        $this->setRequestUrl('http://localhost/about');
         Multira::setLocale();
 
         $this->assertSame(
-            'http://localhost/cart',
+            'http://localhost/about',
             Multira::getLocalizedURL('ar')
         );
         $this->assertSame(
-            'http://localhost/en/cart',
+            'http://localhost/en/about',
             Multira::getLocalizedURL('en')
         );
         $this->assertTrue(Multira::isHiddenDefault('ar'));
@@ -61,11 +61,11 @@ class MultiraTest extends TestCase
 
     public function test_it_strips_the_locale_from_a_url(): void
     {
-        $this->setRequestUrl('http://localhost/tr/checkout');
+        $this->setRequestUrl('http://localhost/tr/contact');
         Multira::setLocale();
 
         $this->assertSame(
-            'http://localhost/checkout',
+            'http://localhost/contact',
             Multira::getNonLocalizedURL()
         );
     }

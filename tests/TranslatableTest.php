@@ -26,34 +26,34 @@ class TranslatableTest extends TestCase
 
     public function test_it_returns_the_database_value_for_the_source_locale(): void
     {
-        $model = new FakeCategory(['name' => 'ملابس']);
+        $model = new FakePost(['title' => 'Hello world']);
 
-        $this->assertSame('ملابس', $model->getTranslation('name', 'ar'));
+        $this->assertSame('Hello world', $model->getTranslation('title', 'ar'));
     }
 
     public function test_it_reads_json_translations_and_falls_back_to_source(): void
     {
-        $model = new FakeCategory(['name' => 'ملابس']);
-        $model->addTranslationToJson('ملابس', 'en', 'Clothes');
+        $model = new FakePost(['title' => 'Hello world']);
+        $model->addTranslationToJson('Hello world', 'en', 'Hello');
 
-        $this->assertSame('Clothes', $model->getTranslation('name', 'en'));
-        $this->assertSame('ملابس', $model->getTranslation('name', 'tr'));
-        $this->assertTrue($model->hasTranslationFor('name', 'en'));
-        $this->assertFalse($model->hasTranslationFor('name', 'tr'));
-        $this->assertSame('Clothes', $model->getLocalizedValue('name', 'en'));
-        $this->assertNull($model->getLocalizedValue('name', 'tr'));
+        $this->assertSame('Hello', $model->getTranslation('title', 'en'));
+        $this->assertSame('Hello world', $model->getTranslation('title', 'tr'));
+        $this->assertTrue($model->hasTranslationFor('title', 'en'));
+        $this->assertFalse($model->hasTranslationFor('title', 'tr'));
+        $this->assertSame('Hello', $model->getLocalizedValue('title', 'en'));
+        $this->assertNull($model->getLocalizedValue('title', 'tr'));
     }
 
     public function test_it_reports_translation_status(): void
     {
-        $model = new FakeCategory(['name' => 'ملابس', 'description' => 'وصف']);
-        $model->addTranslationToJson('ملابس', 'en', 'Clothes');
+        $model = new FakePost(['title' => 'Hello world', 'body' => 'Body text']);
+        $model->addTranslationToJson('Hello world', 'en', 'Hello');
 
         $status = $model->getTranslationStatus();
 
-        $this->assertTrue($status['name']['en']);
-        $this->assertFalse($status['name']['tr']);
-        $this->assertFalse($status['description']['en']);
+        $this->assertTrue($status['title']['en']);
+        $this->assertFalse($status['title']['tr']);
+        $this->assertFalse($status['body']['en']);
     }
 
     protected function langPath(): string
@@ -62,7 +62,7 @@ class TranslatableTest extends TestCase
     }
 }
 
-class FakeCategory extends Model
+class FakePost extends Model
 {
     use Translatable;
 
@@ -72,6 +72,6 @@ class FakeCategory extends Model
 
     public function getTranslatableAttributes(): array
     {
-        return ['name', 'description'];
+        return ['title', 'body'];
     }
 }

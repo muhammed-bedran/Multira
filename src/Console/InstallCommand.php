@@ -19,11 +19,11 @@ class InstallCommand extends Command
         ]);
 
         $locales = array_unique(array_merge(
-            config('multira.target_locales', ['en', 'tr']),
+            config('multira.target_locales', []),
             config('multira.supported', [])
         ));
 
-        $source = config('multira.source_locale', 'ar');
+        $source = config('multira.source_locale', config('app.locale', 'en'));
 
         foreach ($locales as $locale) {
             if ($locale === $source) {
@@ -45,25 +45,26 @@ class InstallCommand extends Command
         $this->newLine();
         $this->info('Multira is ready.');
         $this->newLine();
-        $this->line('Wrap your public routes:');
+        $this->line('Wrap any routes that need a locale prefix:');
         $this->newLine();
         $this->line('    use Melbedran\\Multira\\Facades\\Multira;');
         $this->newLine();
         $this->line('    Multira::routes(function () {');
-        $this->line("        Route::get('/', [HomeController::class, 'index'])->name('home');");
+        $this->line("        Route::get('/', [PageController::class, 'home'])->name('home');");
+        $this->line("        Route::get('/about', [PageController::class, 'about'])->name('about');");
         $this->line('    });');
         $this->newLine();
-        $this->line('Add Translatable to a model:');
+        $this->line('Add Translatable to any Eloquent model:');
         $this->newLine();
         $this->line('    use Melbedran\\Multira\\Traits\\Translatable;');
         $this->newLine();
-        $this->line('    class Category extends Model');
+        $this->line('    class Post extends Model');
         $this->line('    {');
         $this->line('        use Translatable;');
         $this->newLine();
         $this->line('        public function getTranslatableAttributes(): array');
         $this->line("        {");
-        $this->line("            return ['name', 'description'];");
+        $this->line("            return ['title', 'body'];");
         $this->line('        }');
         $this->line('    }');
         $this->newLine();

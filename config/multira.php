@@ -4,46 +4,48 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | اللغات المفعّلة
+    | Enabled locales
     |--------------------------------------------------------------------------
     |
-    | أضف أو احذف رمز اللغة فقط. التفاصيل (الاسم، الاتجاه، native)
-    | تُجلب تلقائياً من كتالوج Multira.
+    | Add or remove locale codes for your app. Names, native labels, and
+    | text direction come from Multira's catalog automatically.
     |
-    | لتخصيص لغة معيّنة استخدم مفتاح locales بالأسفل.
+    | Override a locale with the locales key below.
     |
     */
 
-    'supported' => ['ar', 'en', 'tr'],
+    'supported' => ['en'],
 
     /*
     |--------------------------------------------------------------------------
-    | تخصيص لغات معيّنة (اختياري)
+    | Custom locale metadata (optional)
     |--------------------------------------------------------------------------
     |
-    | إذا عرّفت لغة هنا تُستخدم بدل الكتالوج.
-    | اترك المصفوفة فارغة للاعتماد على الكتالوج فقط.
+    | Use this to override catalog values or add a locale that is not listed.
     |
     */
 
     'locales' => [
-        // 'ar' => ['name' => 'Arabic', 'native' => 'العربية', 'script' => 'Arab', 'regional' => 'ar_AE', 'dir' => 'rtl'],
+        // 'en' => ['name' => 'English', 'native' => 'English', 'script' => 'Latn', 'regional' => 'en_GB', 'dir' => 'ltr'],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | ترتيب قائمة اللغات
+    | Language switcher order
     |--------------------------------------------------------------------------
+    |
+    | Leave empty to follow the supported array.
+    |
     */
 
-    'localesOrder' => ['ar', 'en', 'tr'],
+    'localesOrder' => [],
 
     /*
     |--------------------------------------------------------------------------
-    | ربط رموز اللغات في الرابط
+    | Locale URL aliases
     |--------------------------------------------------------------------------
     |
-    | مثال: استخدم /uk بدل /en-GB
+    | Example: use /uk in the URL instead of /en-GB
     | 'localesMapping' => ['en-GB' => 'uk'],
     |
     */
@@ -52,12 +54,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | إخفاء اللغة الافتراضية من الرابط
+    | Hide the default locale in URLs
     |--------------------------------------------------------------------------
     |
-    | إذا كانت اللغة الافتراضية ar و القيمة true:
-    |   /about  و  /ar/about  نفس الصفحة
-    | يُفضّل تفعيل middleware localizationRedirect معها.
+    | If the default locale is en and this is true:
+    |   /about  and  /en/about  are the same page
+    |
+    | Use with the localizationRedirect middleware.
     |
     */
 
@@ -65,10 +68,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | اكتشاف لغة المتصفح
+    | Detect locale from the browser
     |--------------------------------------------------------------------------
     |
-    | عند أول زيارة بدون لغة في الرابط، استخدم Accept-Language.
+    | On the first visit without a locale in the URL, use Accept-Language.
     |
     */
 
@@ -76,7 +79,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | لاحقة setlocale
+    | setlocale suffix
     |--------------------------------------------------------------------------
     */
 
@@ -84,7 +87,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | مسارات وطرق تُتجاهل
+    | Ignored paths and HTTP methods
     |--------------------------------------------------------------------------
     */
 
@@ -94,7 +97,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | مفاتيح الجلسة والكوكي
+    | Session and cookie keys
     |--------------------------------------------------------------------------
     */
 
@@ -107,40 +110,40 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | ترجمة النماذج (JSON)
+    | Eloquent JSON translations
     |--------------------------------------------------------------------------
     |
-    | اللغة المصدر تُحفظ في قاعدة البيانات.
-    | بقية اللغات تُحفظ في lang/{locale}.json والمفتاح هو النص المصدر.
+    | The source locale stays in the database.
+    | Other locales are stored in lang/{locale}.json, keyed by the source text.
     |
-    |   lang/en.json => { "ملابس": "Clothes" }
+    |   lang/es.json => { "Hello": "Hola" }
     |
     */
 
-    'source_locale' => 'ar',
+    'source_locale' => 'en',
 
-    'target_locales' => ['en', 'tr'],
+    'target_locales' => [],
 
     /*
     |--------------------------------------------------------------------------
-    | مجموعات النماذج للوحة التحكم
+    | Translatable model groups
     |--------------------------------------------------------------------------
     |
-    | المفتاح = اسم المجموعة في المسار
-    | القيمة = Model يستخدم Trait Translatable
+    | Key   = group name used in Multira translation routes
+    | Value = Eloquent model that uses the Translatable trait
     |
-    |   POST /multira/translations/categories/name
+    |   POST /multira/translations/posts/title
     |
     */
 
     'groups' => [
-        // 'categories' => \App\Models\Category::class,
-        // 'products' => \App\Models\Product::class,
+        // 'posts' => \App\Models\Post::class,
+        // 'pages' => \App\Models\Page::class,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | مسارات الباكج
+    | Package routes
     |--------------------------------------------------------------------------
     */
 
@@ -152,7 +155,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | الـ middleware الافتراضي لمجموعة Multira::routes()
+    | Default middleware for Multira::routes()
     |--------------------------------------------------------------------------
     */
 

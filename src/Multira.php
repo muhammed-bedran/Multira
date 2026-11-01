@@ -66,7 +66,7 @@ class Multira
      * Wrap localized routes in one call.
      *
      * Multira::routes(function () {
-     *     Route::get('/', [HomeController::class, 'index'])->name('home');
+     *     Route::get('/', [PageController::class, 'home'])->name('home');
      * });
      */
     public function routes(Closure $routes, array $middleware = []): void

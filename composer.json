@@ -1,6 +1,6 @@
 {
     "name": "melbedran/multira",
-    "description": "Easy Laravel localization like mcamara, plus JSON model translations. No Google Translate.",
+    "description": "General-purpose Laravel localization: locale-prefixed URLs like mcamara, plus optional JSON model translations. No Google Translate.",
     "type": "library",
     "license": "MIT",
     "keywords": [

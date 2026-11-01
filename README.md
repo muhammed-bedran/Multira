@@ -1,25 +1,23 @@
 # Multira
 
-باكج لارافيل للترجمة وتعدد اللغات. أسلوبه قريب من [mcamara/laravel-localization](https://github.com/mcamara/laravel-localization): بادئة اللغة في الرابط، نفس أسماء الـ middleware تقريباً، وواجهة `Multira::setLocale()`.
+A general-purpose Laravel localization package. The public API follows [mcamara/laravel-localization](https://github.com/mcamara/laravel-localization): locale prefixes in URLs, familiar middleware names, and `Multira::setLocale()`.
 
-زيادة على ذلك: ترجمة حقول النماذج يدوياً في ملفات `lang/{locale}.json` بنفس فكرة مشروع TAM.
+It also stores Eloquent field translations in `lang/{locale}.json`. Translations are saved, edited, and deleted by you. There is no Google Translate.
 
-**بدون ترجمة غوغل.** الحفظ والتعديل والحذف يدوي فقط.
+Use it in any Laravel 11 or 12 app: a blog, a dashboard, an API site, or a store.
 
 - PHP 8.2+
-- Laravel 11 و 12
+- Laravel 11 and 12
 
 ---
 
-## التثبيت
-
-المستودع على GitHub. أضفه كمصدر VCS ثم ثبّته:
+## Install
 
 ```bash
 composer require melbedran/multira
 ```
 
-إذا لم يكن على Packagist بعد، أضف في `composer.json`:
+If the package is not on Packagist yet, add this to your app `composer.json` first:
 
 ```json
 {
@@ -32,35 +30,48 @@ composer require melbedran/multira
 }
 ```
 
-ثم:
+Then:
 
 ```bash
 composer require melbedran/multira:dev-main
 php artisan multira:install
 ```
 
-الأمر ينشر `config/multira.php` وينشئ ملفات JSON الفارغة للغات الهدف.
+This publishes `config/multira.php` and creates empty JSON files for target locales.
 
-الـ Service Provider والـ Facade والـ middleware تُسجَّل تلقائياً. لا تحتاج تعديل `bootstrap/app.php`.
+The service provider, facade, and middleware aliases are auto-registered. You do not need to edit `bootstrap/app.php`.
 
 ---
 
-## الاستخدام السريع
+## Configure locales
 
-### 1) تغليف صفحات الموقع
+Edit `config/multira.php` for your app:
 
-أسهل طريقة:
+```php
+'supported' => ['en', 'ar', 'fr'],
+'source_locale' => 'en',
+'target_locales' => ['ar', 'fr'],
+```
+
+Add any locale code from the catalog (`en`, `ar`, `fr`, `de`, `es`, `tr`, `fa`, ...). To add a locale that is not in the catalog, use the `locales` array.
+
+---
+
+## Localized routes
+
+Wrap the routes that should have a locale prefix. Put any routes of your app inside the group: pages, resources, whatever you need.
 
 ```php
 use Melbedran\Multira\Facades\Multira;
 
 Multira::routes(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::get('/', [PageController::class, 'home'])->name('home');
+    Route::get('/about', [PageController::class, 'about'])->name('about');
+    Route::resource('posts', PostController::class);
 });
 ```
 
-نفس أسلوب mcamara إذا فضّلت كتابته يدوياً:
+Same style as mcamara if you prefer to write the group yourself:
 
 ```php
 use Melbedran\Multira\Facades\Multira;
@@ -73,17 +84,22 @@ Route::group([
         'localeViewPath',
     ],
 ], function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/', [PageController::class, 'home'])->name('home');
+    Route::get('/about', [PageController::class, 'about'])->name('about');
 });
 ```
 
-الروابط تصبح:
+Example URLs when `en` and `ar` are enabled:
 
-- `/ar`
-- `/en/cart`
-- `/tr/checkout`
+- `/en`
+- `/ar/about`
+- `/en/posts/1`
 
-### 2) اتجاه الصفحة ومبدّل اللغة
+Routes that should stay without a locale (webhooks, health checks, admin APIs) stay outside the group.
+
+---
+
+## Language switcher and page direction
 
 ```blade
 <html lang="{{ Multira::getCurrentLocale() }}" dir="{{ Multira::getCurrentLocaleDirection() }}">
@@ -93,7 +109,7 @@ Route::group([
 <x-multira-switcher />
 ```
 
-أو يدوياً:
+Or build your own links:
 
 ```blade
 @foreach (Multira::getSupportedLocales() as $locale => $properties)
@@ -105,91 +121,77 @@ Route::group([
 @endforeach
 ```
 
-مسار جاهز لتبديل اللغة: `/multira/switch/{locale}`
+Built-in switch route: `/multira/switch/{locale}`
 
-### 3) ترجمة نموذج (بدون غوغل)
+---
+
+## Translate Eloquent fields
 
 ```php
 use Melbedran\Multira\Traits\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
-class Category extends Model
+class Post extends Model
 {
     use Translatable;
 
     public function getTranslatableAttributes(): array
     {
-        return ['name', 'description'];
+        return ['title', 'body'];
     }
 }
 ```
 
-العربية تُحفظ في قاعدة البيانات. الإنجليزية والتركية تُحفظ في:
+The source locale stays in the database. Other locales go into JSON:
 
 ```json
-// lang/en.json
+// lang/ar.json
 {
-    "ملابس": "Clothes"
+    "Hello world": "مرحبا بالعالم"
 }
 ```
 
 ```php
-$category->name = 'ملابس';
+$post->title = 'Hello world';
 
-$category->getTranslation('name', 'en');     // Clothes
-$category->getTranslation('name', 'ar');     // ملابس
-$category->getLocalizedValue('name', 'tr');  // null إذا لا توجد ترجمة
-$category->addTranslationToJson('ملابس', 'en', 'Clothes');
-$category->renameTranslationKey('ملابس', 'ملابس رجالية');
-$category->deleteTranslationsFromJson();
+$post->getTranslation('title', 'ar');     // مرحبا بالعالم
+$post->getTranslation('title', 'en');     // Hello world
+$post->getLocalizedValue('title', 'fr');  // null when missing
+$post->addTranslationToJson('Hello world', 'ar', 'مرحبا بالعالم');
+$post->renameTranslationKey('Hello world', 'Hello');
+$post->deleteTranslationsFromJson();
 ```
 
-في `config/multira.php` اربط المجموعة بالموديل:
+Map models in `config/multira.php`:
 
 ```php
 'groups' => [
-    'categories' => \App\Models\Category::class,
-    'products' => \App\Models\Product::class,
+    'posts' => \App\Models\Post::class,
+    'pages' => \App\Models\Page::class,
 ],
 ```
 
-في فورم الإنشاء/التعديل:
+Optional form fields for manual save and delete:
 
 ```blade
-<form method="POST" action="{{ route('categories.store') }}">
+<form method="POST" action="{{ route('posts.store') }}">
     @csrf
 
-    <input name="name" value="{{ old('name', $category->name) }}">
-    <textarea name="description">{{ old('description', $category->description) }}</textarea>
+    <input name="title" value="{{ old('title', $post->title) }}">
+    <textarea name="body">{{ old('body', $post->body) }}</textarea>
 
-    <x-multira-translations group="categories" field="name" :model="$category" />
-    <x-multira-translations group="categories" field="description" :model="$category" />
+    <x-multira-translations group="posts" field="title" :model="$post" />
+    <x-multira-translations group="posts" field="body" :model="$post" />
 
-    <button type="submit">حفظ</button>
+    <button type="submit">Save</button>
 </form>
 ```
 
-كل لغة لها حقل وحفظ وحذف يدوي. لا يوجد زر ترجمة آلية.
+Each target locale gets an input, a save button, and a delete button. Nothing is auto-translated.
 
 ---
 
-## الإعدادات المهمة
-
-`config/multira.php`:
-
-```php
-'supported' => ['ar', 'en', 'tr'],
-'source_locale' => 'ar',
-'target_locales' => ['en', 'tr'],
-'hideDefaultLocaleInURL' => false,
-'useAcceptLanguageHeader' => false,
-```
-
-إضافة لغة جديدة: ضع رمزها في `supported` و `target_locales`. الكتالوج فيه عشرات اللغات (fr, de, fa, ku, ...). لإضافة لغة غير موجودة في الكتالوج استخدم `locales`.
-
----
-
-## واجهة شبيهة بـ mcamara
+## mcamara-compatible API
 
 | Multira | mcamara |
 |---|---|
@@ -198,26 +200,26 @@ $category->deleteTranslationsFromJson();
 | `Multira::getSupportedLocales()` | `LaravelLocalization::getSupportedLocales()` |
 | `Multira::getLocalizedURL('en')` | `LaravelLocalization::getLocalizedURL('en')` |
 | `Multira::getNonLocalizedURL()` | `LaravelLocalization::getNonLocalizedURL()` |
-| `Multira::checkLocaleInSupportedLocales()` | نفس الاسم |
-| `Multira::getCurrentLocaleDirection()` | نفس الاسم |
+| `Multira::checkLocaleInSupportedLocales()` | same name |
+| `Multira::getCurrentLocaleDirection()` | same name |
 | `localize` | `localize` |
 | `localizationRedirect` | `localizationRedirect` |
 | `localeSessionRedirect` | `localeSessionRedirect` |
 | `localeCookieRedirect` | `localeCookieRedirect` |
 | `localeViewPath` | `localeViewPath` |
 
-أسماء Multira الخاصة تعمل أيضاً: `multira`, `multira.redirect`, `multira.session`, `multira.cookie`, `multira.view`.
+Multira aliases also work: `multira`, `multira.redirect`, `multira.session`, `multira.cookie`, `multira.view`.
 
-دوال مساعدة:
+Helpers:
 
 ```php
 multira()->getCurrentLocale();
-localized_url('en');
+localized_url('ar');
 ```
 
 ---
 
-## أوامر
+## Commands
 
 ```bash
 php artisan multira:install
@@ -227,7 +229,7 @@ php artisan vendor:publish --tag=multira-views
 
 ---
 
-## الاختبارات
+## Tests
 
 ```bash
 composer install
@@ -236,6 +238,6 @@ vendor/bin/phpunit
 
 ---
 
-## الترخيص
+## License
 
 MIT © Melbedran

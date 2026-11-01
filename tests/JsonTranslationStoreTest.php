@@ -26,38 +26,38 @@ class JsonTranslationStoreTest extends TestCase
     public function test_it_stores_and_reads_a_translation(): void
     {
         $store = app(JsonTranslationStore::class);
-        $store->put('ملابس', 'en', 'Clothes');
+        $store->put('Hello world', 'ar', 'مرحبا بالعالم');
 
-        $this->assertSame('Clothes', $store->get('ملابس', 'en'));
-        $this->assertNull($store->get('غير موجود', 'en'));
-        $this->assertFileExists($this->langPath().DIRECTORY_SEPARATOR.'en.json');
+        $this->assertSame('مرحبا بالعالم', $store->get('Hello world', 'ar'));
+        $this->assertNull($store->get('Missing key', 'ar'));
+        $this->assertFileExists($this->langPath().DIRECTORY_SEPARATOR.'ar.json');
     }
 
     public function test_it_renames_a_translation_key(): void
     {
         $store = app(JsonTranslationStore::class);
-        $store->put('ملابس', 'en', 'Clothes');
-        $store->rename('ملابس', 'ملابس رجالية', ['en']);
+        $store->put('Hello world', 'ar', 'مرحبا بالعالم');
+        $store->rename('Hello world', 'Hello', ['ar']);
 
-        $this->assertNull($store->get('ملابس', 'en'));
-        $this->assertSame('Clothes', $store->get('ملابس رجالية', 'en'));
+        $this->assertNull($store->get('Hello world', 'ar'));
+        $this->assertSame('مرحبا بالعالم', $store->get('Hello', 'ar'));
     }
 
     public function test_it_deletes_a_translation(): void
     {
         $store = app(JsonTranslationStore::class);
-        $store->put('ملابس', 'en', 'Clothes');
-        $store->forget('ملابس', 'en');
+        $store->put('Hello world', 'ar', 'مرحبا بالعالم');
+        $store->forget('Hello world', 'ar');
 
-        $this->assertNull($store->get('ملابس', 'en'));
+        $this->assertNull($store->get('Hello world', 'ar'));
     }
 
     public function test_it_cleans_html_from_keys(): void
     {
         $store = app(JsonTranslationStore::class);
-        $store->put('<b>ملابس</b>', 'en', 'Clothes');
+        $store->put('<b>Hello world</b>', 'ar', 'مرحبا بالعالم');
 
-        $this->assertSame('Clothes', $store->get('  ملابس  ', 'en'));
+        $this->assertSame('مرحبا بالعالم', $store->get('  Hello world  ', 'ar'));
     }
 
     protected function langPath(): string

@@ -11,8 +11,8 @@ use Melbedran\Multira\Support\JsonTranslationStore;
  * lang/{locale}.json using the source text as the key.
  *
  * @example
- * // lang/en.json: { "ملابس": "Clothes" }
- * // $category->getTranslation('name', 'en') => "Clothes"
+ * // lang/ar.json: { "Hello world": "مرحبا بالعالم" }
+ * // $post->getTranslation('title', 'ar') => "مرحبا بالعالم"
  */
 trait Translatable
 {
@@ -178,7 +178,7 @@ trait Translatable
 
     protected function multiraSourceLocale(): string
     {
-        return (string) config('multira.source_locale', 'ar');
+        return (string) config('multira.source_locale', config('app.locale', 'en'));
     }
 
     /**
@@ -186,6 +186,6 @@ trait Translatable
      */
     protected function multiraTargetLocales(): array
     {
-        return array_values(config('multira.target_locales', ['en']));
+        return array_values(config('multira.target_locales', []));
     }
 }
