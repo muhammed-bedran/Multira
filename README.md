@@ -13,29 +13,14 @@ Use it in any Laravel 11 or 12 app: a blog, a dashboard, an API site, or a store
 
 ## Install
 
+After the package is published on [Packagist](https://packagist.org/packages/melbedran/multira), install it with one command:
+
 ```bash
 composer require melbedran/multira
-```
-
-If the package is not on Packagist yet, add this to your app `composer.json` first:
-
-```json
-{
-    "repositories": {
-        "melbedran-multira": {
-            "type": "vcs",
-            "url": "https://github.com/muhammed-bedran/Multira.git"
-        }
-    }
-}
-```
-
-Then:
-
-```bash
-composer require melbedran/multira:dev-main
 php artisan multira:install
 ```
+
+No `repositories` entry is needed. Composer downloads it from Packagist automatically.
 
 This publishes `config/multira.php` and creates empty JSON files for target locales.
 
